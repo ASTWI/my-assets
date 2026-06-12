@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dynamic Image Quiz</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .quiz-container {
+      background: #fff;
+      border-radius: 12px;
+      padding: 25px;
+      width: 400px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 10px;
+    }
+    img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      background: #3498db;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn:hover {
+      background: #2980b9;
+    }
+    .correct {
+      background-color: #2ecc71 !important;
+    }
+    .incorrect {
+      background-color: #e74c3c !important;
+    }
+    #next-btn {
+      background: #27ae60;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h2 id="question">Loading question...</h2>
+    <img id="question-image" src="" alt="Question Image">
+    <div id="answer-buttons"></div>
+    <button id="next-btn" class="btn">Next</button>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "Which animal is this?",
+        image: "https://upload.wikimedia.org/wikipedia/commons/5/56/Tiger.50.jpg",
+        answers: [
+          { text: "Tiger", correct: true },
+          { text: "Lion", correct: false },
+          { text: "Leopard", correct: false },
+          { text: "Cheetah", correct: false }
+        ]
+      },
+      {
+        question: "What landmark is shown here?",
+        image: "https://upload.wikimedia.org/wikipedia/commons/e/e6/Eiffel_Tower_from_the_Trocadero%2C_Paris_5_February_2013.jpg",
+        answers: [
+          { text: "Eiffel Tower", correct: true },
+          { text: "Statue of Liberty", correct: false },
+          { text: "Big Ben", correct: false },
+          { text: "Leaning Tower of Pisa", correct: false }
+        ]
+      },
+      {
+        question: "Which planet is shown in this image?",
+        image: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Mars_Valles_Marineris_EDIT.jpg",
+        answers: [
+          { text: "Mars", correct: true },
+          { text: "Venus", correct: false },
+          { text: "Earth", correct: false },
+          { text: "Jupiter", correct: false }
+        ]
+      }
+    ];
+
+    const questionElement = document.getElementById("question");
+    const imageElement = document.getElementById("question-image");
+    const answerButtons = document.getElementById("answer-buttons");
+    const nextButton = document.getElementById("next-btn");
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    function startQuiz() {
+      currentQuestionIndex = 0;
+      score = 0;
+      nextButton.innerText = "Next";
+      showQuestion();
+    }
+
+    function showQuestion() {
+      resetState();
+      let currentQuestion = questions[currentQuestionIndex];
+      questionElement.innerText = currentQuestion.question;
+      imageElement.src = currentQuestion.image;
+
+      currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.innerText = answer.text;
+        button.classList.add("btn");
+        button.addEventListener("click", () => selectAnswer(answer, button));
+        answerButtons.appendChild(button);
+      });
+    }
+
+    function resetState() {
+      nextButton.style.display = "none";
+      while (answerButtons.firstChild) {
+        answerButtons.removeChild(answerButtons.firstChild);
+      }
+    }
+
+    function selectAnswer(answer, button) {
+      const correct = answer.correct;
+      if (correct) {
+        button.classList.add("correct");
+        score++;
+      } else {
+        button.classList.add("incorrect");
+      }
+      Array.from(answerButtons.children).forEach(btn => {
+        btn.disabled = true;
+        if (questions[currentQuestionIndex].answers.find(a => a.text === btn.innerText).correct) {
+          btn.classList.add("correct");
+        }
+      });
+      nextButton.style.display = "block";
+    }
+
+    nextButton.addEventListener("click", () => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        showQuestion();
+      } else {
+        showScore();
+      }
+    });
+
+    function showScore() {
+      resetState();
+      imageElement.style.display = "none";
+      questionElement.innerText = `You scored ${score} out of ${questions.length}!`;
+      nextButton.innerText = "Restart";
+      nextButton.style.display = "block";
+      nextButton.addEventListener("click", startQuiz);
+    }
+
+    startQuiz();
+  </script>
+</body>
+</html>
